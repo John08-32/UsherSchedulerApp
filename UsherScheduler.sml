@@ -11,44 +11,64 @@
 val names = ["John","Mark","Hap","Jack"];
 val targetMonth : string = "September";
 val wedsInMonth = [1,8,15,22,29];
+val sundaysInMonth = [5,12,19,26];
 
 (* 
     Example Read from console:
 *)
-val my_text : string = TextIO.input TextIO.stdIn;
+(* val my_text : string = TextIO.input TextIO.stdIn;
 
-print my_text;
+print my_text; *)
 
 (* 
-    This stray value needs to exist outside of the get GetRndN function for some reason.
+    This stray value needs to exist outside of the get getRndN function for some reason.
     Or at least, I can't get it to work nested in a let expression.
     See https://stackoverflow.com/questions/22067535/generating-a-random-number-in-sml
 *)
 val r = Random.rand(1,1);
 
-fun GetRndN(min : int, max :int)=
+fun getRndN(min : int, max : int)=
     let val nextInt = Random.randRange(min,max)
     in
         nextInt r
     end;
 
-fun GetRndName(lOfNames : string list)=
-    List.nth(lOfNames, GetRndN(0, length names - 1))
+fun getRndName(lOfNames : string list)=
+    List.nth(lOfNames, getRndN(0, length names - 1))
 
 (* 
     Returns a list of concated strings where a man is assigned to each Wed provided as an int list in the args 
 *)
-fun AssignWedList(weds : int list)=
+fun assignWedList(weds : int list)=
     if null (weds)
     then []
     else 
-        let fun AssignWed(wed : int)=
-            let val name = GetRndName(names)
+        let fun assignWed(wed : int)=
+            let val timeSlot = "Wednesday, " ^ targetMonth ^ " " ^ Int.toString(wed) ^ " - "
             in
-                "Wednesday, " ^ targetMonth ^ " " ^ Int.toString(wed) ^ " - " ^ name
+                timeSlot ^ getRndName(names)
             end
         in
-            AssignWed(hd weds)::AssignWedList(tl weds)
+            assignWed(hd weds)::assignWedList(tl weds)
         end
 
-val test = AssignWedList(wedsInMonth);
+val weds = assignWedList(wedsInMonth);
+
+(* 
+    Returns a list of concated strings where 4 men are assigned to each sunday (both AM & PM meetings) provided as an int list in the args 
+*)
+
+fun assignSunList(suns : int list)=
+    if null (suns)
+    then []
+    else 
+        let fun assignSun(sun : int)=
+            let val timeSlot = "Sunday, " ^ targetMonth ^ " " ^ Int.toString(sun) ^ " - " ^ "AM: "
+            in
+                timeSlot ^ getRndName(names) ^ " & " ^ getRndName(names) ^ " / PM: " ^ getRndName(names) ^ " & " ^ getRndName(names)
+            end
+        in
+            assignSun(hd suns)::assignSunList(tl suns)
+        end
+
+val suns = assignSunList(sundaysInMonth);
